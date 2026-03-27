@@ -1,0 +1,47 @@
+<zk>
+    <window border="none" width="400px" apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('com.sample.PersonApp.viewModel.LoginViewModel')" style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%);
+               background:#f9f9f9; border-radius:10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding:30px;">
+
+        <vlayout spacing="25px" style="margin:0; width:100%;">
+
+            <div style="width:100%; text-align:center; margin-bottom:20px;">
+                <label value="Login" style="font-size:28px; font-weight:bold; color:#1e293b; text-shadow: 1px 1px 2px #aaa; display:block;"/>
+            </div>
+
+            <vlayout spacing="15px" width="100%">
+
+                <!-- Username -->
+                <hlayout spacing="10px" style="align-items:center;">
+                    <label value="Username:" style="width:100px; font-weight:500;"/>
+                    <vlayout width="100%">
+                        <textbox value="@bind(vm.username)" onChanging="@command('clearUsernameError')" width="100%" style="padding:8px; border-radius:5px; border:1px solid #ccc;"/>
+                        <label value="@load(vm.usernameError)" style="color:red; font-size:15px;"/>
+                    </vlayout>
+                </hlayout>
+
+                <!-- Password -->
+                <hlayout spacing="10px" style="align-items:center;">
+                    <label value="Password:" style="width:100px; font-weight:500;"/>
+                    <vlayout width="100%">
+                        <textbox type="password" value="@bind(vm.password)" onChanging="@command('clearPasswordError')" width="100%" style="padding:8px; border-radius:5px; border:1px solid #ccc;"/>
+                        <label value="@load(vm.passwordError)" style="color:red; font-size:15px;"/>
+                    </vlayout>
+                </hlayout>
+
+            </vlayout>
+
+            <vlayout spacing="10px" width="100%">
+                <button label="Login" onClick="@command('login')" width="50%" style="display:block; margin:0 auto; padding:10px;
+                   background:#1e293b; color:white;
+                   border:none; border-radius:5px; font-size:16px;"/>
+
+                <div style="width:100%; text-align:center; margin-top:10px;">
+                    <label value="@load(vm.loginError)" style="color:#ef4444; font-size:15px; font-weight:500;"/>
+                </div>
+                <label value="Don't have an account? Sign Up" style="display:block; text-align:center; color:#2563eb; cursor:pointer;" onClick="@command('goToRegister')"/>
+
+            </vlayout>
+        </vlayout>
+
+    </window>
+</zk>

@@ -1,0 +1,118 @@
+<zk>
+    <window apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('com.sample.PersonApp.viewModel.HomeViewModel')" width="100%" height="100%" border="none" style="margin:0; padding:0;">
+
+        <borderlayout width="100%" height="100%">
+
+            <north size="55px" style="background:#1e293b;">
+
+                <div style="display:flex; align-items:center; justify-content:space-between; width:100%; height:100%; padding:0 20px; box-sizing:border-box;">
+
+
+                    <label value="@load(vm.welcomeMessage)" style="color:white; font-size:16px;"/>
+
+                    <button label="Logout" onClick="@command('logout')" style="background-color:#3b82f6; color:white;"/>
+
+                </div>
+
+            </north>
+
+            <center hflex="1" vflex="1">
+                <vlayout spacing="15px" style="padding:15px 25px;" hflex="1" vflex="1">
+
+                    <div style="text-align:center; width:100%; margin-bottom:30px;">
+                        <label value="User Management Dashboard" style="font-size:30px; font-weight:bold; color:#1e293b;"/>
+                    </div>
+                    <hlayout spacing="60px" hflex="1" vflex="1">
+                        <vlayout visible="@load(vm.admin)" spacing="15px">
+                            <groupbox mold="3d" width="500px" visible="@load(vm.admin)" style="background:#f8fafc; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+                                <caption label="Manage User" style="font-size:18px; font-weight:bold; color:#1e293b;"/>
+
+                                <grid width="100%" style="padding:10px;">
+                                    <rows>
+
+                                        <!-- Name -->
+                                        <row>
+                                            <label value="Name" style="font-weight:600; color:#334155;"/>
+                                            <vlayout>
+                                                <textbox value="@bind(vm.person.name)" onChanging="@command('clearNameError')" width="100%" style="border-radius:6px; border:1px solid #cbd5f5; padding:5px;"/>
+                                                <label value="@load(vm.nameError)" style="color:#ef4444; font-size:15px;"/>
+                                            </vlayout>
+                                        </row>
+
+                                        <!-- Age -->
+                                        <row>
+                                            <label value="Age" style="font-weight:600; color:#334155;"/>
+                                            <vlayout>
+                                                <intbox value="@bind(vm.person.age)" onChanging="@command('clearAgeError')" width="100%" style="border-radius:6px; border:1px solid #cbd5f5; padding:5px;"/>
+                                                <label value="@load(vm.ageError)" style="color:#ef4444; font-size:15px;"/>
+                                            </vlayout>
+                                        </row>
+
+                                        <!-- Salary -->
+                                        <row>
+                                            <label value="Salary" style="font-weight:600; color:#334155;"/>
+                                            <vlayout>
+                                                <doublebox value="@bind(vm.person.salary)" onChanging="@command('clearSalaryError')" width="100%" style="border-radius:6px; border:1px solid #cbd5f5; padding:5px;"/>
+                                                <label value="@load(vm.salaryError)" style="color:#ef4444; font-size:15px;"/>
+                                            </vlayout>
+                                        </row>
+
+                                        <!-- Button -->
+                                        <row>
+                                            <button label="@load(vm.editMode ? 'Update' : 'Save')" onClick="@command('save')" disabled="@load(!vm.admin)" style="@load(vm.admin 
+                                           ? 'background-color:#3b82f6; color:white; border-radius:6px; padding:6px 12px; font-weight:bold;' 
+                                           : 'background-color:#94a3b8; color:#e2e8f0; border-radius:6px; padding:6px 12px; font-weight:bold; cursor:not-allowed; opacity:0.7;')"/>
+                                            <button label="Cancel" onClick="@command('cancel')" disabled="@load(!vm.admin)" style="@load(vm.admin 
+                                            ? 'background-color:#3b82f6; color:white; border-radius:6px; padding:6px 12px; font-weight:bold;' 
+                                            : 'background-color:#94a3b8; color:#e2e8f0; border-radius:6px; padding:6px 12px; font-weight:bold; cursor:not-allowed; opacity:0.7;')"/>
+
+                                        </row>
+                                    </rows>
+                                </grid>
+                            </groupbox>
+                            <groupbox mold="3d" width="500px" visible="@load(vm.topEarnerAvailable)" style="background:#ecfeff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); ">
+
+                                <caption label="Top Earner " style="font-size:16px; font-weight:bold; color:#0f172a;"/>
+
+                                <vlayout style="padding:10px;">
+                                    <label value="@load(vm.topEarnerName)" style="font-size:16px; font-weight:bold; color:#0369a1;"/>
+
+                                    <label value="@load(vm.topEarnerSalary)" style="font-size:16px; font-weight:bold; color:#16a34a;"/>
+                                </vlayout>
+                            </groupbox>
+                        </vlayout>
+                        <div style="max-height:500px; overflow:auto; border:1px solid #ddd;">
+                            <grid model="@load(vm.persons)" width="1000px">
+                                <columns>
+                                    <column label="Name" width="250px"/>
+                                    <column label="Age" width="250px"/>
+                                    <column label="Salary" width="250px"/>
+                                    <column label="Actions" width="250px"/>
+                                </columns>
+
+                                <rows>
+                                    <template name="model">
+                                        <row>
+                                            <label value="@load(each.name)"/>
+                                            <label value="@load(each.age)"/>
+                                            <label value="@load(each.salary)" onClick="@command('checkSalary', salary=each.salary)" style="cursor:pointer; color:blue;"/>
+                                            <hlayout spacing="10px">
+                                                <button iconSclass="z-icon-edit" tooltiptext="Edit" onClick="@command('edit', each=each)" disabled="@load(!vm.admin)" style="@load(vm.admin 
+                                                ? 'background-color:#3b82f6; color:white; border-radius:6px; padding:6px 12px; font-weight:bold;' 
+                                                : 'background-color:#94a3b8; color:#e2e8f0; border-radius:6px; padding:6px 12px; font-weight:bold; cursor:not-allowed; opacity:0.7;')"/>
+                                                <button iconSclass="z-icon-trash" tooltiptext="Delete" onClick="@command('delete', each=each)" disabled="@load(!vm.admin)" style="@load(vm.admin 
+                                                ? 'background-color:#ef4444; color:white; border-radius:6px; padding:6px 12px; font-weight:bold;' 
+                                                : 'background-color:#94a3b8; color:#e2e8f0; border-radius:6px; padding:6px 12px; font-weight:bold; cursor:not-allowed; opacity:0.7;')"/>
+                                            </hlayout>
+                                        </row>
+                                    </template>
+                                </rows>
+                            </grid>
+                        </div>
+                    </hlayout>
+                </vlayout>
+            </center>
+        </borderlayout>
+    </window>
+</zk>
