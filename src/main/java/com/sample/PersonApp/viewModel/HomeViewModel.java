@@ -26,13 +26,20 @@ public class HomeViewModel {
     private String nameError;
     private String ageError;
     private String salaryError;
+    private String searchText;
+    private List<PersonDTO> allPersons;
+    private int pageSize = 10;
+    private int activePage = 0;
+    private int totalSize;
 
     private PersonDAO dao = new PersonDAO();
 
     @Init
     public void init() {
         person = new PersonDTO();
-        persons = dao.getAll();
+        allPersons = dao.getAll();
+        totalSize = allPersons.size();
+        loadPage();
         UserDTO user = (UserDTO) Sessions.getCurrent().getAttribute("user");
         if (user != null) {
             username = user.getUsername();
@@ -40,8 +47,51 @@ public class HomeViewModel {
         }
     }
 
+    private void loadPage() {
+        int start = activePage * pageSize;
+        int end = Math.min(start + pageSize, allPersons.size());
+
+        if (start >= allPersons.size()) {
+            persons = List.of();
+            return;
+        }
+
+        persons = allPersons.subList(start, end);
+    }
+
+    @Command
+    @NotifyChange({"persons", "activePage", "totalPages"})
+    public void changePage(@BindingParam("page") int page) {
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (page >= getTotalPages()) {
+            page = getTotalPages() - 1;
+        }
+
+        this.activePage = page;
+        loadPage();
+    }
+
+    public int getTotalPages() {
+        if (totalSize == 0) {
+            return 1;
+        }
+        return (int) Math.ceil((double) totalSize / pageSize);
+    }
+
     public PersonDTO getPerson() {
         return person;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
     }
 
     public List<PersonDTO> getPersons() {
@@ -137,7 +187,13 @@ public class HomeViewModel {
             }
 
             person = new PersonDTO();
-            persons = dao.getAll();
+            allPersons = dao.getAll();
+            totalSize = allPersons.size();
+            activePage = 0;
+            loadPage();
+            BindUtils.postNotifyChange(null, null, this, "persons");
+            BindUtils.postNotifyChange(null, null, this, "totalPages");
+            BindUtils.postNotifyChange(null, null, this, "activePage");
 
         } catch (Exception e) {
             Clients.showNotification("Error occurred!", "error", null, "top_right", 4000);
@@ -160,7 +216,9 @@ public class HomeViewModel {
                 event -> {
                     if (event.getName().equals(org.zkoss.zul.Messagebox.ON_YES)) {
                         dao.delete(p.getId());
-                        persons = dao.getAll();
+                        allPersons = dao.getAll();
+                        totalSize = allPersons.size();
+                        loadPage();
                         BindUtils.postNotifyChange(null, null, this, "persons");
                         BindUtils.postNotifyChange(null, null, this, "highestSalaryPerson");
                         BindUtils.postNotifyChange(null, null, this, "topEarnerAvailable");
@@ -298,6 +356,46 @@ public class HomeViewModel {
                     }
                 }
         );
+    }
+
+    @Command
+    @NotifyChange({"persons", "noRecordsFound", "totalPages", "activePage"})
+    public void search() {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            allPersons = dao.getAll();
+        } else {
+            String searchLower = searchText.toLowerCase();
+
+            allPersons = dao.getAll().stream()
+                    .filter(p -> p.getName() != null
+                    && p.getName().toLowerCase().contains(searchLower))
+                    .toList();
+        }
+
+        activePage = 0; // reset page
+        totalSize = allPersons.size();
+        loadPage();
+        BindUtils.postNotifyChange(null, null, this, "persons");
+        BindUtils.postNotifyChange(null, null, this, "totalPages");
+        BindUtils.postNotifyChange(null, null, this, "activePage");
+    }
+
+    @Command
+    @NotifyChange({"searchText", "persons", "noRecordsFound", "totalPages", "activePage"})
+    public void clearSearch() {
+        searchText = null;
+        allPersons = dao.getAll();
+        activePage = 0;
+        totalSize = allPersons.size();
+        loadPage();
+    }
+
+    public boolean isNoRecordsFound() {
+        return persons == null || persons.isEmpty();
+    }
+
+    public int getActivePage() {
+        return activePage;
     }
 
 }
